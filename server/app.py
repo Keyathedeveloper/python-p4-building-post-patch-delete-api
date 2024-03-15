@@ -42,7 +42,7 @@ def games():
 @app.route('/games/<int:id>')
 def game_by_id(id):
     game = Game.query.filter(Game.id == id).first()
-    
+
     game_dict = game.to_dict()
 
     response = make_response(
@@ -52,7 +52,7 @@ def game_by_id(id):
 
     return response
 
-@app.route('/reviews')
+@app.route('/reviews', methods=['GET', 'POST'])
 def reviews():
 
     reviews = []
@@ -67,9 +67,38 @@ def reviews():
 
     return response
 
+@app.route('/reviews/<int:id>', methods=['GET', 'DELETE'])
+def review_by_id(id):
+    review = Review.query.filter(Review.id == id).first()
+
+    if request.method == 'GET':
+        review_dict = review.to_dict()
+
+        response = make_response(
+            review_dict,
+            200
+        )
+
+        return response
+
+    elif request.method == 'DELETE':
+        db.session.delete(review)
+        db.session.commit()
+
+        response_body = {
+            "delete_successful": True,
+            "message": "Review deleted."
+        }
+
+        response = make_response(
+            response_body,
+            200
+        )
+
+        return response
+
 @app.route('/users')
 def users():
-
     users = []
     for user in User.query.all():
         user_dict = user.to_dict()
